@@ -1,0 +1,66 @@
+#cloud-config
+${yamlencode({
+  apt = {
+    sources = merge(
+      {
+        azure-cli = {
+          source = "deb [arch=arm64 signed-by=$KEY_FILE] https://packages.microsoft.com/repos/azure-cli/ $RELEASE main"
+          keyserver = "https://packages.microsoft.com/keys/microsoft.asc"
+          keyid = "BC528686B50D79E339D3721CEB3E94ADBE1229CF"
+        }
+      },
+      {for package in install_apt_packages : package.name => { for k, v in package.repository : k => v if v != null } if can(package.repository.source) }
+    )
+  }
+
+  package-update = true
+  package-upgrade = false
+
+  packages = concat(
+    [ "azure-cli" ],
+    [ for package in install_apt_packages : package.name ]
+  )
+
+  runcmd = concat(
+    [ for group in add_user_to_groups : "usermod -a -G ${group} ${username}" ],
+
+    [ for _ in [true] : "sudo -u ${username} curl -s \"https://get.sdkman.io\" | bash" if install_sdkman ],
+
+    [ for sdkman_package in install_sdkman_packages :
+      sdkman_package.version_regex != null
+        ? "sudo -u ${username} sdk install ${ sdkman_package.name } $(sdk list  ${ sdkman_package.name } | grep -o \"\\b${ sdkman_package.version_regex }\" | head -1)"
+        : "sudo -u ${username} sdk install ${ sdkman_package.name }"
+      if install_sdkman 
+    ],
+
+    [
+      "sudo -u ${username} az login --identity",
+      "az login --identity",
+
+      "export VM_NAME=\"$(curl -H Metadata:true \"http://169.254.169.254/metadata/instance/compute/name?api-version=2020-09-01&format=text\")\"",
+      "export VM_ID=$(az resource list --name \"$VM_NAME\" --query \"[0].id\" --output tsv)",
+      "export RESOURCE_GROUP=$(az resource show --ids \"$VM_ID\" --query \"resourceGroup\" --output tsv)"
+    ],
+
+    [ for _ in [true] : <<EOF
+      cluster_name="$(az aks list --resource-group "$RESOURCE_GROUP" --query '[0].name' --output tsv)"
+      if [ -n "$cluster_name" ]; then
+        sudo -u ${username} az aks get-credentials --admin --name "$cluster_name" --resource-group "$RESOURCE_GROUP"
+      fi
+      EOF
+      if log_in_to_first_aks_cluster
+    ],
+
+    [
+      for _ in [true] : <<EOF
+      acr_name=$(az acr list --resource-group "$RESOURCE_GROUP" --query '[0].name' --output tsv)
+      if [ -n "$acr_name" ]; then
+        sudo az acr login --name "$acr_name"
+        acr_server=$(az acr list --resource-group "$RESOURCE_GROUP" --query '[0].loginServer' --output tsv)
+        echo "export ACR_SERVER=$acr_server" >> "$HOME/.bashrc"
+      fi
+      EOF
+      if log_in_to_first_acr
+    ]
+  )
+})}
