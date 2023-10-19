@@ -22,7 +22,7 @@ resource "azurerm_linux_virtual_machine" "dev_vm" {
   name                = "${var.name}-dev-vm"
   resource_group_name = var.resource_group_name
   location            = var.location
-  size                = "Standard_A4_v2"
+  size                = var.size
   admin_username      = var.username
   network_interface_ids = [
     azurerm_network_interface.dev_vm.id,

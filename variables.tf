@@ -13,6 +13,12 @@ variable "name" {
   description = "The name of the VM (used in the name of all resource created)"
 }
 
+variable "size" {
+  type        = string
+  description = "The size of the VM"
+  default     = "Standard_A4_v2"
+}
+
 variable "username" {
   type        = string
   description = "The default user on the VM"
