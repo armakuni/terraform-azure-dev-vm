@@ -39,13 +39,15 @@ ${yamlencode({
 
       "export VM_NAME=\"$(curl -H Metadata:true \"http://169.254.169.254/metadata/instance/compute/name?api-version=2020-09-01&format=text\")\"",
       "export VM_ID=$(az resource list --name \"$VM_NAME\" --query \"[0].id\" --output tsv)",
-      "export RESOURCE_GROUP=$(az resource show --ids \"$VM_ID\" --query \"resourceGroup\" --output tsv)"
+      "export RESOURCE_GROUP=$(az resource show --ids \"$VM_ID\" --query \"resourceGroup\" --output tsv)",
+      "echo \"export RESOURCE_GROUP=$RESOURCE_GROUP\" >> ~${username}/.profile"
     ],
 
     [ for _ in [true] : <<EOF
       cluster_name="$(az aks list --resource-group "$RESOURCE_GROUP" --query '[0].name' --output tsv)"
       if [ -n "$cluster_name" ]; then
         su - ${username} -c 'az aks get-credentials --admin --name "'$cluster_name'" --resource-group "'$RESOURCE_GROUP'"'
+        echo "export AKS_CLUSTER_NAME=$cluster_name" >> ~${username}/.profile
       fi
       EOF
       if log_in_to_first_aks_cluster
@@ -57,7 +59,7 @@ ${yamlencode({
       if [ -n "$acr_name" ]; then
         su - ${username} -c 'az acr login --name "'$acr_name'"'
         acr_server=$(az acr list --resource-group "$RESOURCE_GROUP" --query '[0].loginServer' --output tsv)
-        echo "export ACR_SERVER=$acr_server" >> "~${username}/.profile"
+        echo "export ACR_SERVER=$acr_server" >> ~${username}/.profile
       fi
       EOF
       if log_in_to_first_acr
