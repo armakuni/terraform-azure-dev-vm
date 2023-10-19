@@ -24,17 +24,17 @@ ${yamlencode({
   runcmd = concat(
     [ for group in add_user_to_groups : "usermod -a -G ${group} ${username}" ],
 
-    [ for _ in [true] : "sudo -u ${username} curl -s \"https://get.sdkman.io\" | bash" if install_sdkman ],
+    [ for _ in [true] : "su - ${username} -c 'curl -s \"https://get.sdkman.io\" | bash'" if install_sdkman ],
 
     [ for sdkman_package in install_sdkman_packages :
       sdkman_package.version_regex != null
-        ? "sudo -u ${username} sdk install ${ sdkman_package.name } $(sdk list  ${ sdkman_package.name } | grep -o \"\\b${ sdkman_package.version_regex }\" | head -1)"
-        : "sudo -u ${username} sdk install ${ sdkman_package.name }"
+        ? "su - ${username} -c 'source \"$HOME/.sdkman/bin/sdkman-init.sh\"; sdk install ${ sdkman_package.name } $(sdk list  ${ sdkman_package.name } | grep -o \"\\\\b${ replace(sdkman_package.version_regex, "\\", "\\\\") }\" | head -1)'"
+        : "su - ${username} -c 'source \"$HOME/.sdkman/bin/sdkman-init.sh\"; sdk install ${ sdkman_package.name }'"
       if install_sdkman 
     ],
 
     [
-      "sudo -u ${username} az login --identity",
+      "su - ${username} -c 'az login --identity'",
       "az login --identity",
 
       "export VM_NAME=\"$(curl -H Metadata:true \"http://169.254.169.254/metadata/instance/compute/name?api-version=2020-09-01&format=text\")\"",
@@ -45,7 +45,7 @@ ${yamlencode({
     [ for _ in [true] : <<EOF
       cluster_name="$(az aks list --resource-group "$RESOURCE_GROUP" --query '[0].name' --output tsv)"
       if [ -n "$cluster_name" ]; then
-        sudo -u ${username} az aks get-credentials --admin --name "$cluster_name" --resource-group "$RESOURCE_GROUP"
+        su - ${username} -c 'az aks get-credentials --admin --name "'$cluster_name'" --resource-group "'$RESOURCE_GROUP'"'
       fi
       EOF
       if log_in_to_first_aks_cluster
@@ -55,9 +55,9 @@ ${yamlencode({
       for _ in [true] : <<EOF
       acr_name=$(az acr list --resource-group "$RESOURCE_GROUP" --query '[0].name' --output tsv)
       if [ -n "$acr_name" ]; then
-        sudo az acr login --name "$acr_name"
+        su - ${username} -c 'az acr login --name "'$acr_name'"'
         acr_server=$(az acr list --resource-group "$RESOURCE_GROUP" --query '[0].loginServer' --output tsv)
-        echo "export ACR_SERVER=$acr_server" >> "$HOME/.bashrc"
+        echo "export ACR_SERVER=$acr_server" >> "~${username}/.profile"
       fi
       EOF
       if log_in_to_first_acr

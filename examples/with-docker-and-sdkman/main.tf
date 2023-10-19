@@ -55,3 +55,8 @@ module "dev_vm" {
     { name = "sbt" }
   ]
 }
+
+output "cloud_init_template" {
+  value = module.dev_vm.template
+  description = "The generate cloud init config"
+}
