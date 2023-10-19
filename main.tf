@@ -67,6 +67,6 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_role_assignment" "dev_vm" {
   principal_id         = azurerm_linux_virtual_machine.dev_vm.identity[0].principal_id
-  role_definition_name = "Contributor"
+  role_definition_name = var.role_definition_name
   scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
 }

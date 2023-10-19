@@ -31,6 +31,12 @@ variable "add_user_to_groups" {
   default     = []
 }
 
+variable "role_definition_name" {
+  type        = string
+  description = "The name of the role definition to attach to the VM"
+  default     = "Reader"
+}
+
 variable "ssh_public_key" {
   type        = string
   description = "The public SSH key used to connect to the VM"
