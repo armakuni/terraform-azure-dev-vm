@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v0.2.0](https://github.com/armakuni/terraform-aws-account-details/compare/v0.1.1..v0.2.0) - 2023-10-19
+#### Bug Fixes
+- Use su instead of sudo to run jobs as the user - ([d170ce2](https://github.com/armakuni/terraform-aws-account-details/commit/d170ce2e0b392adde230b84d8141f920aa84f0b6)) - Tom Oram
+#### Build system
+- Ignore tfstate files - ([93a0fd8](https://github.com/armakuni/terraform-aws-account-details/commit/93a0fd806d6352dbc168e860842636d4cee9cd0b)) - Tom Oram
+#### Features
+- Add role_definition_name variable - ([8d0d13b](https://github.com/armakuni/terraform-aws-account-details/commit/8d0d13bd66a673755645e9068b898912bedb8190)) - Tom Oram
+- Add size variable - ([9c51069](https://github.com/armakuni/terraform-aws-account-details/commit/9c510693e687b07eaee1ae4cf43e729a24e804f2)) - Tom Oram
+- Add RESOURCE_GROUP and AKS_CLUSTER_NAME to .profile - ([66e8721](https://github.com/armakuni/terraform-aws-account-details/commit/66e87213733d595744edee5cd6d6e8b88de03b65)) - Tom Oram
+
+- - -
+
 ## [v0.1.1](https://github.com/armakuni/terraform-aws-account-details/compare/v0.1.0..v0.1.1) - 2023-10-18
 #### Bug Fixes
 - Add cog config - ([162fc97](https://github.com/armakuni/terraform-aws-account-details/commit/162fc9722598d5dfe8ee3070321b6e54d77cb73e)) - Tom Oram

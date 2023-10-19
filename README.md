@@ -40,6 +40,8 @@ No modules.
 | <a name="input_log_in_to_first_aks_cluster"></a> [log\_in\_to\_first\_aks\_cluster](#input\_log\_in\_to\_first\_aks\_cluster) | Causes kubectl to log in to the first AKS cluster in the VMs resource group (requires kubectl to be installed) | `bool` | `false` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the VM (used in the name of all resource created) | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The Azure resource group to create the VM in | `string` | n/a | yes |
+| <a name="input_role_definition_name"></a> [role\_definition\_name](#input\_role\_definition\_name) | The name of the role definition to attach to the VM | `string` | `"Reader"` | no |
+| <a name="input_size"></a> [size](#input\_size) | The size of the VM | `string` | `"Standard_A4_v2"` | no |
 | <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | The public SSH key used to connect to the VM | `string` | n/a | yes |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet to attach the VM to. | `string` | n/a | yes |
 | <a name="input_username"></a> [username](#input\_username) | The default user on the VM | `string` | `"adminuser"` | no |
